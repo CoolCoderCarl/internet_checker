@@ -6,6 +6,9 @@ import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
+
+# Arg parse for param
+# Use URL from args & file
 url = "https://www.google.com"
 timeout = 5
 
@@ -14,7 +17,7 @@ duration = 2000
 
 
 def sound_notification(frequency: int, duration: int):
-    if "win" in sys.platform:
+    if "win" in sys.platform.lower():
         winsound.Beep(frequency, duration)
     else:
         try:
