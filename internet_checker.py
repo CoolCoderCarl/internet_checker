@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import winsound
 
 import requests
@@ -47,6 +48,8 @@ def is_internet_available(url: str, timeout: int) -> bool:
 
 if __name__ == "__main__":
     if is_internet_available(url, timeout):
-        exit(0)
+        sys.exit(0)
     else:
         sound_notification(frequency, duration)
+
+    time.sleep(10)
