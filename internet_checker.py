@@ -52,7 +52,7 @@ def is_internet_available(url: str, timeout: int) -> bool:
 if __name__ == "__main__":
     if is_internet_available(url, timeout):
         print("Connected to the Internet")
-        sys.exit(0)
+        # sys.exit(0)
     else:
         print("No Internet connection")
         sound_notification(frequency, duration)
