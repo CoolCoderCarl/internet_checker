@@ -36,20 +36,25 @@ def is_internet_available(url: str, timeout: int) -> bool:
     try:
         response = http.get(url, timeout=timeout)
         if response.status_code == 200:
-            print("Connected to the Internet")
             return True
         else:
             return False
-    except (requests.ConnectionError, requests.Timeout) as exception:
-        print("No Internet connection")
+    except (
+        requests.ConnectionError,
+        requests.Timeout,
+        requests.HTTPError,
+        requests.TooManyRedirects,
+    ) as exception:
         print(exception)
         return False
 
 
 if __name__ == "__main__":
     if is_internet_available(url, timeout):
+        print("Connected to the Internet")
         sys.exit(0)
     else:
+        print("No Internet connection")
         sound_notification(frequency, duration)
 
     time.sleep(10)
