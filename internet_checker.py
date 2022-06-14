@@ -14,7 +14,6 @@ duration = 2000
 
 
 def is_internet_available(url: str) -> bool:
-    # for url in urls:
     try:
         response = requests.get(url, timeout=5)
         if response.status_code == 200:
@@ -47,4 +46,7 @@ if __name__ == "__main__":
         print("No Internet connection")
         sound_notification(frequency, duration)
 
+    x = requests.get(url)
+    print(x)
+    print(x.status_code)
     time.sleep(10)
