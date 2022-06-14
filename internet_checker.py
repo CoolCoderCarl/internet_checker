@@ -37,7 +37,7 @@ def is_internet_available(url: str) -> bool:
         requests.HTTPError,
         requests.TooManyRedirects,
     ) as exception:
-        print(exception)
+        # print(exception)
         return False
 
 
