@@ -22,9 +22,9 @@ def sound_notification(frequency: int, duration: int):
             print("Try to install beep to your system")
 
 
-def is_internet_available(url: str):
+def internet_available(url: str):
     try:
-        response = requests.get(url, timeout=5)
+        response = requests.get(url)
         if response.status_code == 200:
             sys.exit(0)
         else:
@@ -34,4 +34,4 @@ def is_internet_available(url: str):
 
 
 if __name__ == "__main__":
-    is_internet_available(url)
+    internet_available(url)
