@@ -6,29 +6,28 @@ import requests
 
 # Arg parse for param
 # Use URL from args & file
-url = "https://www.google.com"
-
-frequency = 500
-duration = 2000
 
 
-# def sound_notification(frequency: int, duration: int):
+def sound_notification(frequency=500, duration=2000):
+    if "win" in sys.platform:
+        winsound.Beep(frequency, duration)
+    else:
+        try:
+            os.system("beep -f %s -l %s" % (frequency, duration))
+        except OSError:
+            print("Try to install beep to your system")
 
 
-def internet_available(url: str):
+def internet_available(url="https://www.google.com"):
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=5)
         if response.status_code == 200:
             sys.exit(0)
-    except (requests.ConnectionError, requests.Timeout):
-        if "win" in sys.platform:
-            winsound.Beep(frequency, duration)
         else:
-            try:
-                os.system("beep -f %s -l %s" % (frequency, duration))
-            except OSError:
-                print("Try to install beep to your system")
+            sound_notification()
+    except (requests.ConnectionError, requests.Timeout):
+        sound_notification()
 
 
 if __name__ == "__main__":
-    internet_available(url)
+    internet_available()
