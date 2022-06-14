@@ -13,22 +13,6 @@ frequency = 500
 duration = 2000
 
 
-def is_internet_available(url: str) -> bool:
-    try:
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            return True
-        else:
-            return False
-    except (
-        requests.ConnectionError,
-        requests.Timeout,
-        requests.HTTPError,
-        requests.TooManyRedirects,
-    ):
-        return False
-
-
 def sound_notification(frequency: int, duration: int):
     if "win" in sys.platform:
         winsound.Beep(frequency, duration)
@@ -39,18 +23,19 @@ def sound_notification(frequency: int, duration: int):
             print("Try to install beep to your system")
 
 
-if __name__ == "__main__":
-    if is_internet_available(url):
-        print("Connected to the Internet")
-    else:
-        print("No Internet connection")
+def is_internet_available(url: str):
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            sys.exit(0)
+        else:
+            sound_notification(frequency, duration)
+    except (
+        requests.ConnectionError,
+        requests.Timeout
+    ):
         sound_notification(frequency, duration)
 
-    try:
-        x = requests.get(url)
-        print(x)
-        print(x.status_code)
-    except (requests.HTTPError, requests.Timeout) as err:
-        print(err)
 
-    time.sleep(10)
+if __name__ == "__main__":
+    is_internet_available(url)
