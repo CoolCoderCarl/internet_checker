@@ -13,16 +13,6 @@ frequency = 500
 duration = 2000
 
 
-def sound_notification(frequency: int, duration: int):
-    if "win" in sys.platform:
-        winsound.Beep(frequency, duration)
-    # else:
-    #     try:
-    #         os.system("beep -f %s -l %s" % (frequency, duration))
-    #     except OSError:
-    #         print("Try to install beep to your system")
-
-
 def is_internet_available(url: str) -> bool:
     # for url in urls:
     try:
@@ -36,9 +26,18 @@ def is_internet_available(url: str) -> bool:
         requests.Timeout,
         requests.HTTPError,
         requests.TooManyRedirects,
-    ) as exception:
-        # print(exception)
+    ):
         return False
+
+
+def sound_notification(frequency: int, duration: int):
+    if "win" in sys.platform:
+        winsound.Beep(frequency, duration)
+    else:
+        try:
+            os.system("beep -f %s -l %s" % (frequency, duration))
+        except OSError:
+            print("Try to install beep to your system")
 
 
 if __name__ == "__main__":
