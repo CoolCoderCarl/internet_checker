@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 import winsound
 
 import requests
@@ -30,10 +29,7 @@ def is_internet_available(url: str):
             sys.exit(0)
         else:
             sound_notification(frequency, duration)
-    except (
-        requests.ConnectionError,
-        requests.Timeout
-    ):
+    except (requests.ConnectionError, requests.Timeout):
         sound_notification(frequency, duration)
 
 
