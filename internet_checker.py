@@ -46,7 +46,11 @@ if __name__ == "__main__":
         print("No Internet connection")
         sound_notification(frequency, duration)
 
-    x = requests.get(url)
-    print(x)
-    print(x.status_code)
+    try:
+        x = requests.get(url)
+        print(x)
+        print(x.status_code)
+    except (requests.HTTPError, requests.Timeout) as err:
+        print(err)
+
     time.sleep(10)
