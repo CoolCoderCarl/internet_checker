@@ -4,14 +4,11 @@ import winsound
 
 import requests
 
-url = "http://www.google.com"
-timeout = 5
-
-frequency = 500
-duration = 2000
+# Arg parse for param
+# Use URL from args & file
 
 
-def sound_notification(frequency: int, duration: int):
+def sound_notification(frequency=500, duration=2000):
     if "win" in sys.platform:
         winsound.Beep(frequency, duration)
     else:
@@ -21,20 +18,16 @@ def sound_notification(frequency: int, duration: int):
             print("Try to install beep to your system")
 
 
-def is_internet_available(url: str, timeout: int) -> bool:
-    # for url in urls:
+def internet_available(url="https://www.google.com"):
     try:
-        request = requests.get(url, timeout=timeout)
-        print("Connected to the Internet")
-        return True
-    except (requests.ConnectionError, requests.Timeout) as exception:
-        print("No internet connection.")
-        print(exception)
-        return False
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            exit(0)
+        else:
+            sound_notification()
+    except (requests.ConnectionError, requests.Timeout):
+        sound_notification()
 
 
 if __name__ == "__main__":
-    if is_internet_available(url, timeout):
-        exit(0)
-    else:
-        sound_notification(frequency, duration)
+    internet_available()
