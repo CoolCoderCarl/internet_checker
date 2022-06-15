@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import time
 import winsound
 
 import requests
@@ -68,8 +69,10 @@ def sound_notification(frequency=500, duration=2000):
 
 def internet_available(url: str, max_retries: int):
     # RegExp URL
+    # If start with https - skip
     num_retry = 0
     while num_retry < max_retries:
+        time.sleep(1)
         num_retry += 1
         try:
             response = requests.get("http://" + url, timeout=5)
