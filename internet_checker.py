@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import winsound
 
 import requests
@@ -22,6 +23,7 @@ def internet_available(url="https://www.google.com"):
     try:
         response = requests.get(url, timeout=5)
         print(response.status_code)
+        time.sleep(10)
         if response.status_code == 200:
             exit(0)
         else:
