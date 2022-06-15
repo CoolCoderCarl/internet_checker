@@ -29,9 +29,9 @@ def internet_available(url="http://www.google.com"):
         else:
             sound_notification()
     except (requests.ConnectionError, requests.Timeout) as err:
-        print(err)
-        time.sleep(10)
-        # sound_notification()
+        # print(err)
+        # time.sleep(10)
+        sound_notification()
 
 
 if __name__ == "__main__":
