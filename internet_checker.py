@@ -70,7 +70,7 @@ def internet_available(url: str, max_retries: int):
     while num_retry < max_retries:
         num_retry += 1
         try:
-            response = requests.get("https://" + url, timeout=5)
+            response = requests.get("http://" + url, timeout=5)
             if response.status_code == 200:
                 print(
                     "Attempt "
