@@ -37,7 +37,7 @@ def get_args():
         "--retry",
         dest="retry",
         help="How much try to connect to URL",
-        type=str,
+        type=int,
     )
 
     return root_parser
@@ -64,13 +64,13 @@ def sound_notification(frequency=500, duration=2000):
             print("Try to install beep to your system")
 
 
-def internet_available(url="http://www.google.com", max_retries=10):
+def internet_available(url: str, max_retries: int):
     # RegExp URL
     num_retry = 0
     while num_retry < max_retries:
         num_retry += 1
         try:
-            response = requests.get(url, timeout=5)
+            response = requests.get("https://" + url, timeout=5)
             if response.status_code == 200:
                 print(
                     "Attempt "
@@ -87,4 +87,4 @@ def internet_available(url="http://www.google.com", max_retries=10):
 
 if __name__ == "__main__":
     if namespace.check == "check":
-        internet_available()
+        internet_available(namespace.url, namespace.retry)
