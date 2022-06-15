@@ -19,7 +19,7 @@ def sound_notification(frequency=500, duration=2000):
             print("Try to install beep to your system")
 
 
-def internet_available(url="https://www.google.com"):
+def internet_available(url="http://www.google.com"):
     try:
         response = requests.get(url, timeout=5)
         print(response.status_code)
@@ -27,13 +27,11 @@ def internet_available(url="https://www.google.com"):
             exit(0)
         else:
             sound_notification()
-    except (requests.ConnectionError, requests.Timeout):
-        sound_notification()
+    except (requests.ConnectionError, requests.Timeout) as err:
+        print(err)
+        # sound_notification()
 
 
 if __name__ == "__main__":
     internet_available()
-    x = requests.get("https://www.google.com")
-    print(x)
-    print(x.status_code)
     time.sleep(10)
