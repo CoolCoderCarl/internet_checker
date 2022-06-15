@@ -23,7 +23,6 @@ def internet_available(url="https://www.google.com"):
     try:
         response = requests.get(url, timeout=5)
         print(response.status_code)
-        time.sleep(10)
         if response.status_code == 200:
             exit(0)
         else:
@@ -34,3 +33,7 @@ def internet_available(url="https://www.google.com"):
 
 if __name__ == "__main__":
     internet_available()
+    x = requests.get("https://www.google.com")
+    print(x)
+    print(x.status_code)
+    time.sleep(10)
