@@ -1,12 +1,12 @@
 import os
 import sys
-import time
 import winsound
 
 import requests
 
 # Arg parse for param
 # Use URL from args & file
+# Use retries from args
 
 
 def sound_notification(frequency=500, duration=2000):
@@ -20,16 +20,19 @@ def sound_notification(frequency=500, duration=2000):
 
 
 def internet_available(url="http://www.google.com"):
-    try:
-        response = requests.get(url, timeout=5)
-        print(response.status_code)
-        time.sleep(10)
-        if response.status_code == 200:
-            exit(0)
-        else:
+    retries = 10
+    while retries != 0:
+        retries -= 1
+        try:
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                # exit(0)
+                print("Code" + str(response.status_code))
+
+            else:
+                sound_notification()
+        except requests.RequestException:
             sound_notification()
-    except requests.RequestException:
-        sound_notification()
 
 
 if __name__ == "__main__":
