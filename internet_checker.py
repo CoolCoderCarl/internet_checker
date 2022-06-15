@@ -5,8 +5,6 @@ import winsound
 
 import requests
 
-# Use URL from args & file
-
 
 def get_args():
     """
@@ -39,6 +37,10 @@ def get_args():
         help="How much try to connect to URL",
         type=int,
     )
+
+    # From file
+    # Path to file
+    # Retries
 
     return root_parser
 
@@ -80,6 +82,7 @@ def internet_available(url: str, max_retries: int):
                 )
 
             else:
+                print("Attempt " + str(num_retry) + " failed")
                 sound_notification()
         except requests.RequestException:
             sound_notification()
