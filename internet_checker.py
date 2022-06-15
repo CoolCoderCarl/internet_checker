@@ -23,12 +23,14 @@ def internet_available(url="http://www.google.com"):
     try:
         response = requests.get(url, timeout=5)
         print(response.status_code)
+        time.sleep(10)
         if response.status_code == 200:
             exit(0)
         else:
             sound_notification()
     except (requests.ConnectionError, requests.Timeout) as err:
         print(err)
+        time.sleep(10)
         # sound_notification()
 
 
