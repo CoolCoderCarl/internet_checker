@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import winsound
+from urllib.parse import urlparse
 
 import requests
 
@@ -50,7 +51,7 @@ def get_args():
 namespace = get_args().parse_args(sys.argv[1:])
 
 
-def sound_notification(frequency=500, duration=2000):
+def sound_notification(frequency=500, duration=1000):
     """
     Play system sound with beep
     If Linux maybe require to install beep package
@@ -68,27 +69,39 @@ def sound_notification(frequency=500, duration=2000):
 
 
 def internet_available(url: str, max_retries: int):
+    """
+    Check if Internet available, if not make sound
+    While it is available send a message about status code
+    https is not available
+    If catch an exception make a longer noise
+    :param url:
+    :param max_retries:
+    :return:
+    """
     # RegExp URL
-    # If start with https - skip
     num_retry = 0
-    while num_retry < max_retries:
-        time.sleep(1)
-        num_retry += 1
-        try:
-            response = requests.get("http://" + url, timeout=5)
-            if response.status_code == 200:
-                print(
-                    "Attempt "
-                    + str(num_retry)
-                    + ". Return Status Code: "
-                    + str(response.status_code)
-                )
+    parsed_url = urlparse(url)
+    if parsed_url.scheme == "https":
+        print("The" + parsed_url.scheme + "prohibited")
+    elif parsed_url.scheme == "http":
+        while num_retry < max_retries:
+            time.sleep(1)
+            num_retry += 1
+            try:
+                response = requests.get("http://" + url, timeout=5)
+                if response.status_code == 200:
+                    print(
+                        "Attempt "
+                        + str(num_retry)
+                        + ". Return Status Code: "
+                        + str(response.status_code)
+                    )
 
-            else:
-                print("Attempt " + str(num_retry) + " failed")
-                sound_notification()
-        except requests.RequestException:
-            sound_notification()
+                else:
+                    print("Attempt " + str(num_retry) + " failed")
+                    sound_notification()
+            except requests.RequestException:
+                sound_notification(10000, 3000)
 
 
 if __name__ == "__main__":
