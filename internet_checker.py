@@ -15,7 +15,7 @@ def get_args():
     :return:
     """
     root_parser = argparse.ArgumentParser(
-        prog="butler",
+        prog="internet_checker",
         description="""Check the Internet connection""",
         epilog="""(c) CoolCoderCarl""",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -37,13 +37,9 @@ def get_args():
         "-r",
         "--retry",
         dest="retry",
-        help="How much try to connect to URL",
+        help="Number of connection attempts to URL",
         type=int,
     )
-
-    # From file
-    # Path to file
-    # Retries
 
     return root_parser
 
