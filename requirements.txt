@@ -2,3 +2,4 @@ black
 isort
 pyinstaller
 requests~=2.7.0
+validators~=0.20.0
