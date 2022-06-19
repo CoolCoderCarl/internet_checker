@@ -79,7 +79,7 @@ def try_internet(url: str, max_retries: int):
         time.sleep(1)
         num_retry += 1
         try:
-            response = requests.get(url, timeout=5)
+            response = requests.get("http://" + url, timeout=5)
             if response.status_code == 200:
                 print(
                     "Attempt "
@@ -95,6 +95,17 @@ def try_internet(url: str, max_retries: int):
             sound_notification(10000, 3000)
 
 
+def remove_schema(url: str) -> str:
+    """
+    Remove schema from URL
+    :param url:
+    :return:
+    """
+    parsed = urlparse(url)
+    scheme = "%s://" % parsed.scheme
+    return parsed.geturl().replace(scheme, "", 1)
+
+
 def internet_check(url: str, max_retries: int):
     """
     Check if Internet available, if not make sound
@@ -105,10 +116,10 @@ def internet_check(url: str, max_retries: int):
     """
     if validators.url(url):
         parsed_url = urlparse(url)
-        if parsed_url.scheme == "https":
-            try_internet(url, max_retries)
-        elif parsed_url.scheme == "http":
-            try_internet(url, max_retries)
+        if parsed_url.scheme == "http":
+            try_internet(remove_schema(url), max_retries)
+        elif parsed_url.scheme == "https":
+            try_internet(remove_schema(url), max_retries)
     else:
         print(url + "is not valid !!!")
         print("Your attempt successfully failed.")
