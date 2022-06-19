@@ -1,11 +1,12 @@
 import argparse
 import os
 import sys
+import time
 import winsound
+from urllib.parse import urlparse
 
 import requests
-
-# Use URL from args & file
+import validators
 
 
 def get_args():
@@ -40,6 +41,10 @@ def get_args():
         type=int,
     )
 
+    # From file
+    # Path to file
+    # Retries
+
     return root_parser
 
 
@@ -47,7 +52,7 @@ def get_args():
 namespace = get_args().parse_args(sys.argv[1:])
 
 
-def sound_notification(frequency=500, duration=2000):
+def sound_notification(frequency=500, duration=1000):
     """
     Play system sound with beep
     If Linux maybe require to install beep package
@@ -64,10 +69,19 @@ def sound_notification(frequency=500, duration=2000):
             print("Try to install beep to your system")
 
 
-def internet_available(url: str, max_retries: int):
-    # RegExp URL
+def try_checking(url: str, max_retries: int):
+    """
+    Actually check is internet available
+    While it is available send a message about status code
+    Make attempts and send messages about statuses
+    If catch an exception make a longer noise
+    :param url: passed from internet_check() func
+    :param max_retries: passed from internet_check() func
+    :return:
+    """
     num_retry = 0
     while num_retry < max_retries:
+        time.sleep(1)
         num_retry += 1
         try:
             response = requests.get("http://" + url, timeout=5)
@@ -80,11 +94,30 @@ def internet_available(url: str, max_retries: int):
                 )
 
             else:
+                print("Attempt " + str(num_retry) + " failed")
                 sound_notification()
         except requests.RequestException:
-            sound_notification()
+            sound_notification(10000, 3000)
+
+
+def internet_check(url: str, max_retries: int):
+    """
+    Check if Internet available, if not make sound
+    https is not available and will change automatically to http
+    :param url: passed to try_checking() func
+    :param max_retries: passed to try_checking() func
+    :return:
+    """
+    if validators.url(url):
+        parsed_url = urlparse(url)
+        if parsed_url.scheme == "https":
+            try_checking(url, max_retries)
+        elif parsed_url.scheme == "http":
+            try_checking(url, max_retries)
+    else:
+        print(url + "not valid")
 
 
 if __name__ == "__main__":
     if namespace.check == "check":
-        internet_available(namespace.url, namespace.retry)
+        internet_check(namespace.url, namespace.retry)
