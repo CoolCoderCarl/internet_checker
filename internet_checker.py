@@ -30,7 +30,7 @@ def get_args():
     check_parser.add_argument(
         "--url",
         dest="url",
-        help="URL for checking",
+        help="URL for checking. Example http://www.google.com",
         type=str,
     )
     check_parser.add_argument(
@@ -65,10 +65,9 @@ def sound_notification(frequency=500, duration=1000):
             print("Try to install beep to your system")
 
 
-def try_checking(url: str, max_retries: int):
+def try_internet(url: str, max_retries: int):
     """
     Actually check is internet available
-    While it is available send a message about status code
     Make attempts and send messages about statuses
     If catch an exception make a longer noise
     :param url: passed from internet_check() func
@@ -96,6 +95,17 @@ def try_checking(url: str, max_retries: int):
             sound_notification(10000, 3000)
 
 
+def remove_schema(url: str) -> str:
+    """
+    Remove schema from URL
+    :param url:
+    :return:
+    """
+    parsed = urlparse(url)
+    scheme = "%s://" % parsed.scheme
+    return parsed.geturl().replace(scheme, "", 1)
+
+
 def internet_check(url: str, max_retries: int):
     """
     Check if Internet available, if not make sound
@@ -106,14 +116,12 @@ def internet_check(url: str, max_retries: int):
     """
     if validators.url(url):
         parsed_url = urlparse(url)
-        if parsed_url.scheme == "https":
-            try_checking(url, max_retries)
-        elif parsed_url.scheme == "http":
-            try_checking(url, max_retries)
-        elif parsed_url.scheme == "":
-            try_checking(url, max_retries)
+        if parsed_url.scheme == "http":
+            try_internet(remove_schema(url), max_retries)
+        elif parsed_url.scheme == "https":
+            try_internet(remove_schema(url), max_retries)
     else:
-        print(url + " not valid !!!")
+        print(url + "is not valid !!!")
         print("Your attempt successfully failed.")
         time.sleep(10)
         exit(1)
