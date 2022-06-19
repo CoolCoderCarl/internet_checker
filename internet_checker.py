@@ -114,8 +114,13 @@ def internet_check(url: str, max_retries: int):
             try_checking(url, max_retries)
         elif parsed_url.scheme == "http":
             try_checking(url, max_retries)
+        elif parsed_url.scheme == "":
+            try_checking(url, max_retries)
     else:
-        print(url + "not valid")
+        print(url + " not valid !!!")
+        print("Your attempt successfully failed.")
+        time.sleep(10)
+        exit(1)
 
 
 if __name__ == "__main__":
