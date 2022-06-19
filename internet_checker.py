@@ -6,6 +6,7 @@ import winsound
 from urllib.parse import urlparse
 
 import requests
+import validators
 
 
 def get_args():
@@ -68,42 +69,55 @@ def sound_notification(frequency=500, duration=1000):
             print("Try to install beep to your system")
 
 
-def internet_available(url: str, max_retries: int):
+def try_checking(url: str, max_retries: int):
     """
-    Check if Internet available, if not make sound
+    Actually check is internet available
     While it is available send a message about status code
-    https is not available
+    Make attempts and send messages about statuses
     If catch an exception make a longer noise
-    :param url:
-    :param max_retries:
+    :param url: passed from internet_check() func
+    :param max_retries: passed from internet_check() func
     :return:
     """
-    # RegExp URL
     num_retry = 0
-    parsed_url = urlparse(url)
-    if parsed_url.scheme == "https":
-        print("The" + parsed_url.scheme + "prohibited")
-    elif parsed_url.scheme == "http":
-        while num_retry < max_retries:
-            time.sleep(1)
-            num_retry += 1
-            try:
-                response = requests.get("http://" + url, timeout=5)
-                if response.status_code == 200:
-                    print(
-                        "Attempt "
-                        + str(num_retry)
-                        + ". Return Status Code: "
-                        + str(response.status_code)
-                    )
+    while num_retry < max_retries:
+        time.sleep(1)
+        num_retry += 1
+        try:
+            response = requests.get("http://" + url, timeout=5)
+            if response.status_code == 200:
+                print(
+                    "Attempt "
+                    + str(num_retry)
+                    + ". Return Status Code: "
+                    + str(response.status_code)
+                )
 
-                else:
-                    print("Attempt " + str(num_retry) + " failed")
-                    sound_notification()
-            except requests.RequestException:
-                sound_notification(10000, 3000)
+            else:
+                print("Attempt " + str(num_retry) + " failed")
+                sound_notification()
+        except requests.RequestException:
+            sound_notification(10000, 3000)
+
+
+def internet_check(url: str, max_retries: int):
+    """
+    Check if Internet available, if not make sound
+    https is not available and will change automatically to http
+    :param url: passed to try_checking() func
+    :param max_retries: passed to try_checking() func
+    :return:
+    """
+    if validators.url(url):
+        parsed_url = urlparse(url)
+        if parsed_url.scheme == "https":
+            try_checking(url, max_retries)
+        elif parsed_url.scheme == "http":
+            try_checking(url, max_retries)
+    else:
+        print(url + "not valid")
 
 
 if __name__ == "__main__":
     if namespace.check == "check":
-        internet_available(namespace.url, namespace.retry)
+        internet_check(namespace.url, namespace.retry)
