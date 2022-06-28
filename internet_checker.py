@@ -102,9 +102,10 @@ def try_internet(url: str, max_retries: int):
                     + " ms."
                 )
             else:
-                print("Attempt " + str(num_retry) + " failed")
+                print("Attempt " + str(num_retry) + " successfully failed.")
                 sound_notification()
         except requests.RequestException:
+            print("Attempt " + str(num_retry) + " failed really bad.")
             sound_notification(10000, 3000)
 
 
