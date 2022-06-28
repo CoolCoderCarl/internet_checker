@@ -9,6 +9,8 @@ import requests
 import validators
 from tcp_latency import measure_latency
 
+# Report after run
+
 
 def get_args():
     """
@@ -102,9 +104,16 @@ def try_internet(url: str, max_retries: int):
                     + " ms."
                 )
             else:
-                print("Attempt " + str(num_retry) + " failed")
+                print(
+                    "Attempt "
+                    + str(num_retry)
+                    + " successfully failed."
+                    + "Return Status Code: "
+                    + str(response.status_code)
+                )
                 sound_notification()
         except requests.RequestException:
+            print("Attempt " + str(num_retry) + " failed really bad.")
             sound_notification(10000, 3000)
 
 
