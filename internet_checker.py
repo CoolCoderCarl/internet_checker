@@ -6,6 +6,7 @@ import winsound
 from urllib.parse import urlparse
 
 import requests
+import tcp_latency
 import validators
 
 
@@ -65,6 +66,16 @@ def sound_notification(frequency=500, duration=1000):
             print("Try to install beep to your system")
 
 
+def latency_is(url: str) -> str:
+    """
+    Return latency value
+    By default return float
+    :param url:
+    :return:
+    """
+    return str(tcp_latency.measure_latency(url)[0])
+
+
 def try_internet(url: str, max_retries: int):
     """
     Actually check is internet available
@@ -86,10 +97,13 @@ def try_internet(url: str, max_retries: int):
                     + str(num_retry)
                     + ". Return Status Code: "
                     + str(response.status_code)
+                    + ". Latency: "
+                    + latency_is(url)
+                    + " ms."
                 )
-
             else:
                 print("Attempt " + str(num_retry) + " failed")
+                latency_is(url)
                 sound_notification()
         except requests.RequestException:
             sound_notification(10000, 3000)
