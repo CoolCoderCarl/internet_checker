@@ -6,8 +6,8 @@ import winsound
 from urllib.parse import urlparse
 
 import requests
-import tcp_latency
 import validators
+from tcp_latency import measure_latency
 
 
 def get_args():
@@ -73,7 +73,7 @@ def latency_is(url: str) -> str:
     :param url:
     :return:
     """
-    return str(tcp_latency.measure_latency(url)[0])
+    return str(measure_latency(url)[0])
 
 
 def try_internet(url: str, max_retries: int):
@@ -103,7 +103,6 @@ def try_internet(url: str, max_retries: int):
                 )
             else:
                 print("Attempt " + str(num_retry) + " failed")
-                latency_is(url)
                 sound_notification()
         except requests.RequestException:
             sound_notification(10000, 3000)
