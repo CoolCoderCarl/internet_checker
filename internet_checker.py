@@ -44,6 +44,8 @@ def get_args():
         type=int,
     )
 
+    check_parser.add_argument("--summary", action=argparse.BooleanOptionalAction)
+
     return root_parser
 
 
@@ -51,7 +53,13 @@ def get_args():
 namespace = get_args().parse_args(sys.argv[1:])
 
 
-def sound_notification(frequency=500, duration=1000):
+def summarization(retry_count: int, success_count: int, latency_average: float):
+    print(retry_count)
+    print(success_count)
+    print(latency_average)
+
+
+def sound_notification(frequency: int = 500, duration: int = 1000):
     """
     Play system sound with beep
     If Linux maybe require to install beep package
@@ -68,14 +76,13 @@ def sound_notification(frequency=500, duration=1000):
             print("Try to install beep to your system")
 
 
-def latency_is(url: str) -> str:
+def latency_is(url: str) -> float:
     """
     Return latency value
-    By default return float
     :param url:
     :return:
     """
-    return str(measure_latency(url)[0])
+    return measure_latency(url)[0]
 
 
 def try_internet(url: str, max_retries: int):
@@ -87,34 +94,42 @@ def try_internet(url: str, max_retries: int):
     :param max_retries: passed from internet_check() func
     :return:
     """
-    num_retry = 0
-    while num_retry < max_retries:
+    retry_count = 0
+    success_count = 0
+    while retry_count < max_retries:
         time.sleep(1)
-        num_retry += 1
+        retry_count += 1
+        latency_average = 0.0
         try:
             response = requests.get("http://" + url, timeout=5)
             if response.status_code == 200:
+                latency_average += latency_is(url)
                 print(
                     "Attempt "
-                    + str(num_retry)
+                    + str(retry_count)
                     + ". Return Status Code: "
                     + str(response.status_code)
                     + ". Latency: "
-                    + latency_is(url)
+                    + str(latency_is(url))
                     + " ms."
                 )
+                success_count += 1
+
             else:
                 print(
                     "Attempt "
-                    + str(num_retry)
+                    + str(retry_count)
                     + " successfully failed."
                     + "Return Status Code: "
                     + str(response.status_code)
                 )
                 sound_notification()
         except requests.RequestException:
-            print("Attempt " + str(num_retry) + " failed really bad.")
+            print("Attempt " + str(retry_count) + " failed really bad.")
             sound_notification(10000, 3000)
+
+        if retry_count == max_retries:
+            summarization(retry_count, success_count, latency_average)
 
 
 def remove_schema(url: str) -> str:
