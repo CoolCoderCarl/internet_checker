@@ -53,10 +53,15 @@ def get_args():
 namespace = get_args().parse_args(sys.argv[1:])
 
 
-def summarization(retry_count: int, success_count: int, latency_average: float):
-    print(retry_count)
+def summarization(max_retries: int, success_count: int, latency_average: float):
+
+    failed_percents = (success_count / max_retries) * 100
+
+    print("Failed percents ", failed_percents, "%")
     print(success_count)
+    print(max_retries)
     print(latency_average)
+    input("Enter to quit...")
 
 
 def sound_notification(frequency: int = 500, duration: int = 1000):
@@ -99,21 +104,26 @@ def try_internet(url: str, max_retries: int):
     while retry_count < max_retries:
         time.sleep(1)
         retry_count += 1
+        latency_current = 0.0
         latency_average = 0.0
         try:
             response = requests.get("http://" + url, timeout=5)
             if response.status_code == 200:
-                latency_average += latency_is(url)
+                latency_current += latency_is(url)
                 print(
                     "Attempt "
                     + str(retry_count)
                     + ". Return Status Code: "
                     + str(response.status_code)
                     + ". Latency: "
-                    + str(latency_is(url))
+                    + str(latency_current)
                     + " ms."
                 )
                 success_count += 1
+                latency_average += latency_current / success_count
+
+                if retry_count == max_retries:
+                    summarization(max_retries, success_count, latency_average)
 
             else:
                 print(
@@ -124,12 +134,14 @@ def try_internet(url: str, max_retries: int):
                     + str(response.status_code)
                 )
                 sound_notification()
+                latency_average += latency_current / success_count
+
+                if retry_count == max_retries:
+                    summarization(max_retries, success_count, latency_average)
+
         except requests.RequestException:
             print("Attempt " + str(retry_count) + " failed really bad.")
             sound_notification(10000, 3000)
-
-        if retry_count == max_retries:
-            summarization(retry_count, success_count, latency_average)
 
 
 def remove_schema(url: str) -> str:
@@ -167,3 +179,4 @@ def internet_check(url: str, max_retries: int):
 if __name__ == "__main__":
     if namespace.check == "check":
         internet_check(namespace.url, namespace.retry)
+    # summarization(10, 5, 5.5)
