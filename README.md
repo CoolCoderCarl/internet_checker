@@ -16,10 +16,13 @@ Enjoy.
 The program provides one function:  
 **Check**
 
-To use program you need pass a URL and how many retries you want to do.
+To use program you need pass an URL and how many retries you want to do.
 
-### Examples 
+### Example 
 **Check**  
-`internet_checker.exe check --url http://www.google.com -r 100`  
-Check if Internet connection available by send 100 requests to www.google.com.  
+`internet_checker.exe check --url http://www.google.com --retry 100`  
+Checking if Internet connection available by sending 100 requests to www.google.com.  
 Also check if site is available.
+
+**Warning !**  
+If set `--retry` to 0 will trigger infinity loop without end conditions. 
