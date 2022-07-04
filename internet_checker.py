@@ -68,14 +68,18 @@ def sound_notification(frequency=500, duration=1000):
             print("Try to install beep to your system")
 
 
-def latency_is(url: str) -> str:
+def latency_is(url: str, num_retry: int) -> float:
     """
     Return latency value
     By default return float
     :param url:
+    :param num_retry:
     :return:
     """
-    return str(measure_latency(url)[0])
+    try:
+        return measure_latency(url)[0]
+    except IndexError:
+        print("Attempt " + str(num_retry), ". There is nothing in here at all.")
 
 
 def try_internet(url: str, max_retries: int):
@@ -100,7 +104,7 @@ def try_internet(url: str, max_retries: int):
                     + ". Return Status Code: "
                     + str(response.status_code)
                     + ". Latency: "
-                    + latency_is(url)
+                    + str(latency_is(url, num_retry))
                     + " ms."
                 )
             else:
