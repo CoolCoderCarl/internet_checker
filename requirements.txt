@@ -1,6 +1,6 @@
 black
 isort
 pyinstaller
-tcp-latency~=0.0.11
 requests~=2.7.0
 validators~=0.20.0
+tcp-latency~=0.0.11
