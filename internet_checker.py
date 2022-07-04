@@ -80,6 +80,46 @@ def latency_is(url: str, num_retry: int) -> float:
         return measure_latency(url)[0]
     except IndexError:
         print("Attempt " + str(num_retry), ". There is nothing in here at all.")
+        return 0.0
+
+
+def show_response_msg(url: str, num_retry: int):
+    """
+    Show regular response
+    :param url:
+    :param num_retry:
+    :return:
+    """
+    response = requests.get("http://" + url, timeout=5)
+    if response.status_code == 200:
+        print(
+            "Attempt "
+            + str(num_retry)
+            + ". Return Status Code: "
+            + str(response.status_code)
+            + ". Latency: "
+            + str(latency_is(url, num_retry))
+            + " ms."
+        )
+    else:
+        print(
+            "Attempt "
+            + str(num_retry)
+            + " successfully failed. "
+            + "Return Status Code: "
+            + str(response.status_code)
+        )
+        sound_notification()
+
+
+def show_exception_msg(num_retry: int):
+    """
+    Show exception message
+    :param num_retry:
+    :return:
+    """
+    print("Attempt " + str(num_retry) + " successfully failed.")
+    sound_notification(10000, 3000)
 
 
 def try_internet(url: str, max_retries: int):
@@ -91,34 +131,24 @@ def try_internet(url: str, max_retries: int):
     :param max_retries: passed from internet_check() func
     :return:
     """
-    num_retry = 0
-    while num_retry < max_retries:
-        time.sleep(1)
-        num_retry += 1
-        try:
-            response = requests.get("http://" + url, timeout=5)
-            if response.status_code == 200:
-                print(
-                    "Attempt "
-                    + str(num_retry)
-                    + ". Return Status Code: "
-                    + str(response.status_code)
-                    + ". Latency: "
-                    + str(latency_is(url, num_retry))
-                    + " ms."
-                )
-            else:
-                print(
-                    "Attempt "
-                    + str(num_retry)
-                    + " successfully failed."
-                    + "Return Status Code: "
-                    + str(response.status_code)
-                )
-                sound_notification()
-        except requests.RequestException:
-            print("Attempt " + str(num_retry) + " failed really bad.")
-            sound_notification(10000, 3000)
+    if max_retries == 0:
+        num_retry = 0
+        while True:
+            time.sleep(1)
+            num_retry += 1
+            try:
+                show_response_msg(url, num_retry)
+            except requests.RequestException:
+                show_exception_msg(num_retry)
+    else:
+        num_retry = 0
+        while num_retry < max_retries:
+            time.sleep(1)
+            num_retry += 1
+            try:
+                show_response_msg(url, num_retry)
+            except requests.RequestException:
+                show_exception_msg(num_retry)
 
 
 def remove_schema(url: str) -> str:
@@ -147,8 +177,7 @@ def internet_check(url: str, max_retries: int):
         elif parsed_url.scheme == "https":
             try_internet(remove_schema(url), max_retries)
     else:
-        print(url + "is not valid !!!")
-        print("Your attempt successfully failed.")
+        print(url + " is not valid !!!")
         time.sleep(10)
         exit(1)
 
