@@ -85,8 +85,10 @@ def latency_is(url: str, num_retry: int) -> float:
         return measure_latency(url)[0]
     except IndexError:
         print(
-            timestamp() + " - Attempt" + str(num_retry),
-            ". There is nothing in here at all.",
+            timestamp()
+            + " - Attempt"
+            + str(num_retry)
+            + ". There is nothing in here at all.",
         )
         return 0.0
 
