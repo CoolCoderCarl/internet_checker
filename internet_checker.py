@@ -128,7 +128,7 @@ def show_exception_msg(num_retry: int):
     :param num_retry:
     :return:
     """
-    print(timestamp() + "Attempt " + str(num_retry) + " successfully failed.")
+    print(timestamp() + " Attempt " + str(num_retry) + " successfully failed.")
     sound_notification(10000, 3000)
 
 
