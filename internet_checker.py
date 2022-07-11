@@ -85,7 +85,7 @@ def latency_is(url: str, num_retry: int) -> float:
         return measure_latency(url)[0]
     except IndexError:
         print(
-            timestamp() + "Attempt" + str(num_retry),
+            timestamp() + " - Attempt" + str(num_retry),
             ". There is nothing in here at all.",
         )
         return 0.0
@@ -102,7 +102,7 @@ def show_response_msg(url: str, num_retry: int):
     if response.status_code == 200:
         print(
             timestamp()
-            + "Attempt "
+            + " - Attempt "
             + str(num_retry)
             + ". Status Code: "
             + str(response.status_code)
@@ -113,7 +113,7 @@ def show_response_msg(url: str, num_retry: int):
     else:
         print(
             timestamp()
-            + "Attempt "
+            + " - Attempt "
             + str(num_retry)
             + " successfully failed. "
             + "Status Code: "
@@ -128,7 +128,7 @@ def show_exception_msg(num_retry: int):
     :param num_retry:
     :return:
     """
-    print(timestamp() + " Attempt " + str(num_retry) + " successfully failed.")
+    print(timestamp() + " - Attempt " + str(num_retry) + " successfully failed.")
     sound_notification(10000, 3000)
 
 
