@@ -24,5 +24,7 @@ To use program you need pass an URL and how many retries you want to do.
 Checking if Internet connection available by sending 100 requests to www.google.com.  
 Also check if site is available.
 
+You also can wrap invocation with `.sh` or `.bat`. Think about it.
+
 **Warning !**  
 If set `--retry` to 0 will trigger infinity loop without end conditions. 
