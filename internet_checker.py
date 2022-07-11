@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import winsound
+from datetime import datetime
 from urllib.parse import urlparse
 
 import requests
@@ -51,6 +52,10 @@ def get_args():
 namespace = get_args().parse_args(sys.argv[1:])
 
 
+def timestamp() -> str:
+    return datetime.now().strftime("%H:%M:%S")
+
+
 def sound_notification(frequency=500, duration=1000):
     """
     Play system sound with beep
@@ -79,7 +84,10 @@ def latency_is(url: str, num_retry: int) -> float:
     try:
         return measure_latency(url)[0]
     except IndexError:
-        print("Attempt " + str(num_retry), ". There is nothing in here at all.")
+        print(
+            timestamp() + "Attempt" + str(num_retry),
+            ". There is nothing in here at all.",
+        )
         return 0.0
 
 
@@ -93,9 +101,10 @@ def show_response_msg(url: str, num_retry: int):
     response = requests.get("http://" + url, timeout=5)
     if response.status_code == 200:
         print(
-            "Attempt "
+            timestamp()
+            + "Attempt "
             + str(num_retry)
-            + ". Return Status Code: "
+            + ". Status Code: "
             + str(response.status_code)
             + ". Latency: "
             + str(latency_is(url, num_retry))
@@ -103,10 +112,11 @@ def show_response_msg(url: str, num_retry: int):
         )
     else:
         print(
-            "Attempt "
+            timestamp()
+            + "Attempt "
             + str(num_retry)
             + " successfully failed. "
-            + "Return Status Code: "
+            + "Status Code: "
             + str(response.status_code)
         )
         sound_notification()
@@ -118,7 +128,7 @@ def show_exception_msg(num_retry: int):
     :param num_retry:
     :return:
     """
-    print("Attempt " + str(num_retry) + " successfully failed.")
+    print(timestamp() + "Attempt " + str(num_retry) + " successfully failed.")
     sound_notification(10000, 3000)
 
 
