@@ -112,7 +112,7 @@ def show_response_msg(url: str, num_retry: int):
             timestamp()
             + " - Attempt "
             + str(num_retry)
-            + "| Status Code: "
+            + " | Status Code: "
             + str(response.status_code)
             + ". Latency: "
             + str(latency_is(url, num_retry))
@@ -124,7 +124,7 @@ def show_response_msg(url: str, num_retry: int):
             + " - Attempt "
             + str(num_retry)
             + " successfully failed. "
-            + "| Status Code: "
+            + " | Status Code: "
             + str(response.status_code)
         )
         sound_notification()
