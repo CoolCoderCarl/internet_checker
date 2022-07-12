@@ -82,7 +82,6 @@ def latency_is(url: str, retry_count: int) -> float:
     """
     Return latency value, if request was successfully failed the response will be empty and
     measurement become unavailable then return zero latency
-    By default return float
     :param url:
     :param retry_count:
     :return: Return latency in milliseconds, if attempt successfully failed - 0.0
@@ -94,7 +93,7 @@ def latency_is(url: str, retry_count: int) -> float:
             timestamp()
             + " - Attempt "
             + str(retry_count)
-            + ". There is nothing in here at all.",
+            + ". There is nothing in here at all."
         )
         return 0.0
 
@@ -112,9 +111,9 @@ def show_response_msg(url: str, retry_count: int):
             timestamp()
             + " - Attempt "
             + str(retry_count)
-            + "| Status Code: "
+            + " | Status Code: "
             + str(response.status_code)
-            + ". Latency: "
+            + " - Latency: "
             + str(latency_is(url, retry_count))
             + " ms."
         )
@@ -124,7 +123,7 @@ def show_response_msg(url: str, retry_count: int):
             + " - Attempt "
             + str(retry_count)
             + " successfully failed. "
-            + "| Status Code: "
+            + " | Status Code: "
             + str(response.status_code)
         )
         sound_notification()
@@ -152,7 +151,7 @@ def try_internet(url: str, max_retries: int):
     retry_count = 0
     if max_retries == 0:
         while True:
-            time.sleep(1)
+            time.sleep(0.5)
             retry_count += 1
             try:
                 show_response_msg(url, retry_count)
@@ -195,7 +194,7 @@ def internet_check(url: str, max_retries: int):
             try_internet(remove_schema(url), max_retries)
     else:
         print(url + " is not valid !!!")
-        time.sleep(10)
+        time.sleep(5)
         exit(1)
 
 
