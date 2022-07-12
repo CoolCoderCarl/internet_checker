@@ -16,7 +16,7 @@ Enjoy.
 The program provides one function:  
 **Check**
 
-To use program you need pass an URL and how many retries you want to do.
+To use program you need pass a URL and how many retries you want to be done.
 
 ### Example 
 **Check**  
