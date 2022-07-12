@@ -53,6 +53,11 @@ namespace = get_args().parse_args(sys.argv[1:])
 
 
 def timestamp() -> str:
+    """
+    Get timestamp with hours, minutes & seconds
+    Invoke in funcs for get dynamically timestamp
+    :return:
+    """
     return datetime.now().strftime("%H:%M:%S")
 
 
@@ -75,7 +80,8 @@ def sound_notification(frequency=500, duration=1000):
 
 def latency_is(url: str, num_retry: int) -> float:
     """
-    Return latency value
+    Return latency value, if request was successfully failed the response will be empty and
+    measurement become unavailable then return zero latency
     By default return float
     :param url:
     :param num_retry:
@@ -86,7 +92,7 @@ def latency_is(url: str, num_retry: int) -> float:
     except IndexError:
         print(
             timestamp()
-            + " - Attempt"
+            + " - Attempt "
             + str(num_retry)
             + ". There is nothing in here at all.",
         )
@@ -106,7 +112,7 @@ def show_response_msg(url: str, num_retry: int):
             timestamp()
             + " - Attempt "
             + str(num_retry)
-            + ". Status Code: "
+            + "| Status Code: "
             + str(response.status_code)
             + ". Latency: "
             + str(latency_is(url, num_retry))
@@ -118,7 +124,7 @@ def show_response_msg(url: str, num_retry: int):
             + " - Attempt "
             + str(num_retry)
             + " successfully failed. "
-            + "Status Code: "
+            + "| Status Code: "
             + str(response.status_code)
         )
         sound_notification()
@@ -143,8 +149,8 @@ def try_internet(url: str, max_retries: int):
     :param max_retries: passed from internet_check() func
     :return:
     """
+    num_retry = 0
     if max_retries == 0:
-        num_retry = 0
         while True:
             time.sleep(1)
             num_retry += 1
@@ -153,7 +159,6 @@ def try_internet(url: str, max_retries: int):
             except requests.RequestException:
                 show_exception_msg(num_retry)
     else:
-        num_retry = 0
         while num_retry < max_retries:
             time.sleep(1)
             num_retry += 1
