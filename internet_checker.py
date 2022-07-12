@@ -78,14 +78,14 @@ def sound_notification(frequency=500, duration=1000):
             print("Try to install beep to your system")
 
 
-def latency_is(url: str, num_retry: int) -> float:
+def latency_is(url: str, retry_count: int) -> float:
     """
     Return latency value, if request was successfully failed the response will be empty and
     measurement become unavailable then return zero latency
     By default return float
     :param url:
-    :param num_retry:
-    :return:
+    :param retry_count:
+    :return: Return latency in milliseconds, if attempt successfully failed - 0.0
     """
     try:
         return measure_latency(url)[0]
@@ -93,17 +93,17 @@ def latency_is(url: str, num_retry: int) -> float:
         print(
             timestamp()
             + " - Attempt "
-            + str(num_retry)
+            + str(retry_count)
             + ". There is nothing in here at all.",
         )
         return 0.0
 
 
-def show_response_msg(url: str, num_retry: int):
+def show_response_msg(url: str, retry_count: int):
     """
     Show regular response
     :param url:
-    :param num_retry:
+    :param retry_count:
     :return:
     """
     response = requests.get("http://" + url, timeout=5)
@@ -111,32 +111,32 @@ def show_response_msg(url: str, num_retry: int):
         print(
             timestamp()
             + " - Attempt "
-            + str(num_retry)
-            + " | Status Code: "
+            + str(retry_count)
+            + "| Status Code: "
             + str(response.status_code)
             + ". Latency: "
-            + str(latency_is(url, num_retry))
+            + str(latency_is(url, retry_count))
             + " ms."
         )
     else:
         print(
             timestamp()
             + " - Attempt "
-            + str(num_retry)
+            + str(retry_count)
             + " successfully failed. "
-            + " | Status Code: "
+            + "| Status Code: "
             + str(response.status_code)
         )
         sound_notification()
 
 
-def show_exception_msg(num_retry: int):
+def show_exception_msg(retry_count: int):
     """
     Show exception message
-    :param num_retry:
+    :param retry_count:
     :return:
     """
-    print(timestamp() + " - Attempt " + str(num_retry) + " successfully failed.")
+    print(timestamp() + " - Attempt " + str(retry_count) + " successfully failed.")
     sound_notification(10000, 3000)
 
 
@@ -149,30 +149,30 @@ def try_internet(url: str, max_retries: int):
     :param max_retries: passed from internet_check() func
     :return:
     """
-    num_retry = 0
+    retry_count = 0
     if max_retries == 0:
         while True:
             time.sleep(1)
-            num_retry += 1
+            retry_count += 1
             try:
-                show_response_msg(url, num_retry)
+                show_response_msg(url, retry_count)
             except requests.RequestException:
-                show_exception_msg(num_retry)
+                show_exception_msg(retry_count)
     else:
-        while num_retry < max_retries:
+        while retry_count < max_retries:
             time.sleep(1)
-            num_retry += 1
+            retry_count += 1
             try:
-                show_response_msg(url, num_retry)
+                show_response_msg(url, retry_count)
             except requests.RequestException:
-                show_exception_msg(num_retry)
+                show_exception_msg(retry_count)
 
 
 def remove_schema(url: str) -> str:
     """
     Remove schema from URL
     :param url:
-    :return:
+    :return: Return provided URL without schema
     """
     parsed = urlparse(url)
     scheme = "%s://" % parsed.scheme
