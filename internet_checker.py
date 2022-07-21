@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 
 import requests
 import validators
-from icmplib import ping
+from icmplib import ICMPLibError, ping
 from tcp_latency import measure_latency
 
 # Using for waiting response after each request
@@ -105,31 +105,46 @@ def latency_is(url: str, retry_count: int) -> float:
 
 
 def http_requests(url: str, retry_count: int):
-    response = requests.get("http://" + url, timeout=TIMEOUT)
-    if response.status_code == 200:
-        print(
-            timestamp()
-            + " - Attempt "
-            + str(retry_count)
-            + " | Status Code: "
-            + str(response.status_code)
-            + " - Latency: "
-            + str(latency_is(url, retry_count))
-            + " ms."
-        )
-    else:
-        print(
-            timestamp()
-            + " - Attempt "
-            + str(retry_count)
-            + " successfully failed. "
-            + " | Status Code: "
-            + str(response.status_code)
-        )
-        sound_notification()
+    """
+    Show messages after requests using HTTP
+    :param url:
+    :param retry_count:
+    :return:
+    """
+    try:
+        response = requests.get("http://" + url, timeout=TIMEOUT)
+        if response.status_code == 200:
+            print(
+                timestamp()
+                + " - Attempt "
+                + str(retry_count)
+                + " | Status Code: "
+                + str(response.status_code)
+                + " - Latency: "
+                + str(latency_is(url, retry_count))
+                + " ms."
+            )
+        else:
+            print(
+                timestamp()
+                + " - Attempt "
+                + str(retry_count)
+                + " successfully failed. "
+                + " | Status Code: "
+                + str(response.status_code)
+            )
+            sound_notification()
+    except requests.RequestException:
+        show_exception_msg(retry_count)
 
 
 def icmp_requests(url: str, retry_count: int):
+    """
+    Show messages after requests using ICMP
+    :param url:
+    :param retry_count: Need to use, because report returned after each request
+    :return:
+    """
     try:
         host = ping(url, count=retry_count, timeout=TIMEOUT)
         if host.is_alive:
@@ -153,18 +168,8 @@ def icmp_requests(url: str, retry_count: int):
                 + str(host.is_alive)
             )
             sound_notification()
-    except requests.RequestException:
+    except ICMPLibError:
         show_exception_msg(retry_count)
-
-
-def show_response_msg(url: str, retry_count: int):
-    """
-    Show regular response
-    :param url:
-    :param retry_count:
-    :return:
-    """
-    pass
 
 
 def show_exception_msg(retry_count: int):
@@ -196,7 +201,6 @@ def try_internet(url: str, max_retries: int):
                     icmp_requests(url, retry_count)
                 else:
                     http_requests(url, retry_count)
-                # show_response_msg(url, retry_count)
             except requests.RequestException:
                 show_exception_msg(retry_count)
     else:
@@ -208,7 +212,6 @@ def try_internet(url: str, max_retries: int):
                     icmp_requests(url, retry_count)
                 else:
                     http_requests(url, retry_count)
-                # show_response_msg(url, retry_count)
             except requests.RequestException:
                 show_exception_msg(retry_count)
 
