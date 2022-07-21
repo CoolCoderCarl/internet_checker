@@ -146,7 +146,7 @@ def icmp_requests(url: str, retry_count: int):
     :return:
     """
     try:
-        host = ping(url, count=retry_count, timeout=TIMEOUT)
+        host = ping(url, count=1, timeout=TIMEOUT)
         if host.is_alive:
             print(
                 timestamp()
