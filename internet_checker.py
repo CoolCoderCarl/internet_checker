@@ -5,10 +5,10 @@ import time
 import winsound
 from datetime import datetime
 from urllib.parse import urlparse
-from icmplib import ping
 
 import requests
 import validators
+from icmplib import ping
 from tcp_latency import measure_latency
 
 # Using for waiting response after each request
@@ -47,7 +47,9 @@ def get_args():
         type=int,
     )
 
-    check_parser.add_argument("--icmp", action=argparse.BooleanOptionalAction, help="Use ICMP protocol")
+    check_parser.add_argument(
+        "--icmp", action=argparse.BooleanOptionalAction, help="Use ICMP protocol"
+    )
 
     return root_parser
 
