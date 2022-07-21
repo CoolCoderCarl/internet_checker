@@ -8,9 +8,11 @@ from urllib.parse import urlparse
 
 import requests
 import validators
+from icmplib import ICMPLibError, ping
 from tcp_latency import measure_latency
 
-# Report after run
+# Using for waiting response after each request
+TIMEOUT = 5
 
 
 def get_args():
@@ -43,6 +45,10 @@ def get_args():
         dest="retry",
         help="Number of connection attempts to URL",
         type=int,
+    )
+
+    check_parser.add_argument(
+        "--icmp", action=argparse.BooleanOptionalAction, help="Use ICMP protocol"
     )
 
     return root_parser
@@ -98,35 +104,72 @@ def latency_is(url: str, retry_count: int) -> float:
         return 0.0
 
 
-def show_response_msg(url: str, retry_count: int):
+def http_requests(url: str, retry_count: int):
     """
-    Show regular response
+    Show messages after requests using HTTP
     :param url:
     :param retry_count:
     :return:
     """
-    response = requests.get("http://" + url, timeout=5)
-    if response.status_code == 200:
-        print(
-            timestamp()
-            + " - Attempt "
-            + str(retry_count)
-            + " | Status Code: "
-            + str(response.status_code)
-            + " - Latency: "
-            + str(latency_is(url, retry_count))
-            + " ms."
-        )
-    else:
-        print(
-            timestamp()
-            + " - Attempt "
-            + str(retry_count)
-            + " successfully failed. "
-            + " | Status Code: "
-            + str(response.status_code)
-        )
-        sound_notification()
+    try:
+        response = requests.get("http://" + url, timeout=TIMEOUT)
+        if response.status_code == 200:
+            print(
+                timestamp()
+                + " - Attempt "
+                + str(retry_count)
+                + " | Status Code: "
+                + str(response.status_code)
+                + " - Latency: "
+                + str(latency_is(url, retry_count))
+                + " ms."
+            )
+        else:
+            print(
+                timestamp()
+                + " - Attempt "
+                + str(retry_count)
+                + " successfully failed. "
+                + " | Status Code: "
+                + str(response.status_code)
+            )
+            sound_notification()
+    except requests.RequestException:
+        show_exception_msg(retry_count)
+
+
+def icmp_requests(url: str, retry_count: int):
+    """
+    Show messages after requests using ICMP
+    :param url:
+    :param retry_count: Need to use, because report returned after each request
+    :return:
+    """
+    try:
+        host = ping(url, count=1, timeout=TIMEOUT)
+        if host.is_alive:
+            print(
+                timestamp()
+                + " - Attempt "
+                + str(retry_count)
+                + " | Is host available: "
+                + str(host.is_alive)
+                + " - Average RTT: "
+                + str(host.avg_rtt)
+                + " ms."
+            )
+        else:
+            print(
+                timestamp()
+                + " - Attempt "
+                + str(retry_count)
+                + " successfully failed. "
+                + " | Is host available: "
+                + str(host.is_alive)
+            )
+            sound_notification()
+    except ICMPLibError:
+        show_exception_msg(retry_count)
 
 
 def show_exception_msg(retry_count: int):
@@ -151,10 +194,13 @@ def try_internet(url: str, max_retries: int):
     retry_count = 0
     if max_retries == 0:
         while True:
-            time.sleep(0.5)
+            time.sleep(1)
             retry_count += 1
             try:
-                show_response_msg(url, retry_count)
+                if namespace.icmp:
+                    icmp_requests(url, retry_count)
+                else:
+                    http_requests(url, retry_count)
             except requests.RequestException:
                 show_exception_msg(retry_count)
     else:
@@ -162,7 +208,10 @@ def try_internet(url: str, max_retries: int):
             time.sleep(1)
             retry_count += 1
             try:
-                show_response_msg(url, retry_count)
+                if namespace.icmp:
+                    icmp_requests(url, retry_count)
+                else:
+                    http_requests(url, retry_count)
             except requests.RequestException:
                 show_exception_msg(retry_count)
 
