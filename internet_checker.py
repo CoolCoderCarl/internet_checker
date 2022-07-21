@@ -14,6 +14,14 @@ from tcp_latency import measure_latency
 # Using for waiting response after each request
 TIMEOUT = 5
 
+# Sound for regular notification
+FREQUENCY_NOTIFICATION = 500
+DURATION_NOTIFICATION = 1000
+
+# Time sleep
+HTTP_SLEEP = 0.5
+ICMP_SLEEP = 1
+
 
 def get_args():
     """
@@ -67,7 +75,9 @@ def timestamp() -> str:
     return datetime.now().strftime("%H:%M:%S")
 
 
-def sound_notification(frequency=500, duration=1000):
+def sound_notification(
+    frequency=FREQUENCY_NOTIFICATION, duration=DURATION_NOTIFICATION
+):
     """
     Play system sound with beep
     If Linux maybe require to install beep package
@@ -197,10 +207,10 @@ def try_internet(url: str, max_retries: int):
             retry_count += 1
             try:
                 if namespace.icmp:
-                    time.sleep(1)
+                    time.sleep(ICMP_SLEEP)
                     icmp_requests(url, retry_count)
                 else:
-                    time.sleep(0.5)
+                    time.sleep(HTTP_SLEEP)
                     http_requests(url, retry_count)
             except requests.RequestException:
                 show_exception_msg(retry_count)
@@ -209,10 +219,10 @@ def try_internet(url: str, max_retries: int):
             retry_count += 1
             try:
                 if namespace.icmp:
-                    time.sleep(1)
+                    time.sleep(ICMP_SLEEP)
                     icmp_requests(url, retry_count)
                 else:
-                    time.sleep(0.5)
+                    time.sleep(HTTP_SLEEP)
                     http_requests(url, retry_count)
             except requests.RequestException:
                 show_exception_msg(retry_count)
