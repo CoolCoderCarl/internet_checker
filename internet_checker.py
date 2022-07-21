@@ -194,7 +194,7 @@ def try_internet(url: str, max_retries: int):
     retry_count = 0
     if max_retries == 0:
         while True:
-            time.sleep(0.5)
+            time.sleep(1)
             retry_count += 1
             try:
                 if namespace.icmp:
@@ -205,7 +205,7 @@ def try_internet(url: str, max_retries: int):
                 show_exception_msg(retry_count)
     else:
         while retry_count < max_retries:
-            time.sleep(0.5)
+            time.sleep(1)
             retry_count += 1
             try:
                 if namespace.icmp:
