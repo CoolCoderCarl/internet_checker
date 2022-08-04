@@ -24,6 +24,10 @@ To use program you need pass a URL and how many retries you want to be done.
 Checking if Internet connection available by sending 100 requests to www.google.com.  
 Also check if site is available.
 
+If pass no arguments, will using default.  
+URL - https://www.google.com; retries - 4:    
+`internet_checker.exe check --url -r`  
+
 By default, using HTTP, if passing `--icmp` will switch to ICMP.  
 `internet_checker.exe check --url http://www.google.com --retry 100 --icmp`
 

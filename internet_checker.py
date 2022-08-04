@@ -11,6 +11,10 @@ import validators
 from icmplib import ICMPLibError, ping
 from tcp_latency import measure_latency
 
+# Using if args has not been passed
+DEFAULT_URL = "https://www.google.com"
+DEFAULT_RETRIES = 4
+
 # Using for waiting response after each request
 TIMEOUT = 5
 
@@ -45,6 +49,8 @@ def get_args():
         "--url",
         dest="url",
         help="URL for checking. Example http://www.google.com",
+        nargs="?",
+        const=DEFAULT_URL,
         type=str,
     )
     check_parser.add_argument(
@@ -52,11 +58,16 @@ def get_args():
         "--retry",
         dest="retry",
         help="Number of connection attempts to URL",
+        nargs="?",
+        const=DEFAULT_RETRIES,
         type=int,
     )
 
     check_parser.add_argument(
-        "--icmp", action=argparse.BooleanOptionalAction, help="Use ICMP protocol"
+        "--icmp",
+        dest="icmp",
+        action=argparse.BooleanOptionalAction,
+        help="Use ICMP protocol",
     )
 
     return root_parser
@@ -106,10 +117,7 @@ def latency_is(url: str, retry_count: int) -> float:
         return measure_latency(url)[0]
     except IndexError:
         print(
-            timestamp()
-            + " - Attempt "
-            + str(retry_count)
-            + ". There is nothing in here at all."
+            f"{timestamp()} - Attempt {retry_count}. There is nothing in here at all."
         )
         return 0.0
 
@@ -125,23 +133,11 @@ def http_requests(url: str, retry_count: int):
         response = requests.get("http://" + url, timeout=TIMEOUT)
         if response.status_code == 200:
             print(
-                timestamp()
-                + " - Attempt "
-                + str(retry_count)
-                + " | Status Code: "
-                + str(response.status_code)
-                + " - Latency: "
-                + str(latency_is(url, retry_count))
-                + " ms."
+                f"{timestamp()} - Attempt {retry_count} | Status code: {response.status_code} - Latency: {latency_is(url, retry_count)} ms."
             )
         else:
             print(
-                timestamp()
-                + " - Attempt "
-                + str(retry_count)
-                + " successfully failed. "
-                + " | Status Code: "
-                + str(response.status_code)
+                f"{timestamp()} - Attempt {retry_count} successfully failed. | Status code: {response.status_code}"
             )
             sound_notification()
     except requests.RequestException:
@@ -159,23 +155,11 @@ def icmp_requests(url: str, retry_count: int):
         host = ping(url, count=1, timeout=TIMEOUT)
         if host.is_alive:
             print(
-                timestamp()
-                + " - Attempt "
-                + str(retry_count)
-                + " | Is host available: "
-                + str(host.is_alive)
-                + " - Average RTT: "
-                + str(host.avg_rtt)
-                + " ms."
+                f"{timestamp()} - Attempt {retry_count} | Is host available: {host.is_alive} - Average RTT: {host.avg_rtt}"
             )
         else:
             print(
-                timestamp()
-                + " - Attempt "
-                + str(retry_count)
-                + " successfully failed. "
-                + " | Is host available: "
-                + str(host.is_alive)
+                f"{timestamp()} - Attempt {retry_count} successfully failed. | Is host available: {host.is_alive}"
             )
             sound_notification()
     except ICMPLibError:
@@ -188,7 +172,7 @@ def show_exception_msg(retry_count: int):
     :param retry_count:
     :return:
     """
-    print(timestamp() + " - Attempt " + str(retry_count) + " successfully failed.")
+    print(f"{timestamp()} - Attempt {retry_count} successfully failed.")
     sound_notification(10000, 3000)
 
 
@@ -254,7 +238,7 @@ def internet_check(url: str, max_retries: int):
         elif parsed_url.scheme == "https":
             try_internet(remove_schema(url), max_retries)
     else:
-        print(url + " is not valid !!!")
+        print(f"{url} is not valid !!!")
         time.sleep(5)
         exit(1)
 
