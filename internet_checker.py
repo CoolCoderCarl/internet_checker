@@ -106,7 +106,8 @@ def sound_notification(
     else:
         try:
             os.system("beep -f %s -l %s" % (frequency, duration))
-        except OSError:
+        except OSError as os_err:
+            logging.error(f"Error: {os_err}")
             logging.critical("Try to install beep to your system")
 
 
