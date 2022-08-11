@@ -1,9 +1,9 @@
 import argparse
+import logging
 import os
 import sys
 import time
 import winsound
-from datetime import datetime
 from urllib.parse import urlparse
 
 import requests
@@ -76,14 +76,19 @@ def get_args():
 # Shortening
 namespace = get_args().parse_args(sys.argv[1:])
 
-
-def timestamp() -> str:
-    """
-    Get timestamp with hours, minutes & seconds
-    Invoke in funcs for get dynamically timestamp
-    :return:
-    """
-    return datetime.now().strftime("%H:%M:%S")
+# Logging
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s", level=logging.WARNING
+)
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s", level=logging.ERROR
+)
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s", level=logging.CRITICAL
+)
 
 
 def sound_notification(
@@ -101,8 +106,9 @@ def sound_notification(
     else:
         try:
             os.system("beep -f %s -l %s" % (frequency, duration))
-        except OSError:
-            print("Try to install beep to your system")
+        except OSError as os_err:
+            logging.error(f"Error: {os_err}")
+            logging.critical("Try to install beep to your system")
 
 
 def latency_is(url: str, retry_count: int) -> float:
@@ -115,9 +121,9 @@ def latency_is(url: str, retry_count: int) -> float:
     """
     try:
         return measure_latency(url)[0]
-    except IndexError:
-        print(
-            f"{timestamp()} - Attempt {retry_count}. There is nothing in here at all."
+    except IndexError as index_err:
+        logging.error(
+            f"Attempt {retry_count}. There is nothing in here at all. Error: {index_err}"
         )
         return 0.0
 
@@ -132,15 +138,16 @@ def http_requests(url: str, retry_count: int):
     try:
         response = requests.get("http://" + url, timeout=TIMEOUT)
         if response.status_code == 200:
-            print(
-                f"{timestamp()} - Attempt {retry_count} | Status code: {response.status_code} - Latency: {latency_is(url, retry_count)} ms."
+            logging.info(
+                f"Attempt {retry_count} | Status code: {response.status_code} - Latency: {latency_is(url, retry_count)} ms."
             )
         else:
-            print(
-                f"{timestamp()} - Attempt {retry_count} successfully failed. | Status code: {response.status_code}"
+            logging.warning(
+                f"Attempt {retry_count} successfully failed. | Status code: {response.status_code}"
             )
             sound_notification()
-    except requests.RequestException:
+    except requests.RequestException as request_err:
+        logging.error(f"Error: {request_err}")
         show_exception_msg(retry_count)
 
 
@@ -154,15 +161,16 @@ def icmp_requests(url: str, retry_count: int):
     try:
         host = ping(url, count=1, timeout=TIMEOUT)
         if host.is_alive:
-            print(
-                f"{timestamp()} - Attempt {retry_count} | Is host available: {host.is_alive} - Average RTT: {host.avg_rtt}"
+            logging.info(
+                f"Attempt {retry_count} | Is host available: {host.is_alive} - Average RTT: {host.avg_rtt}"
             )
         else:
-            print(
-                f"{timestamp()} - Attempt {retry_count} successfully failed. | Is host available: {host.is_alive}"
+            logging.warning(
+                f"Attempt {retry_count} successfully failed. | Is host available: {host.is_alive}"
             )
             sound_notification()
-    except ICMPLibError:
+    except ICMPLibError as icmp_err:
+        logging.error(f"Error: {icmp_err}")
         show_exception_msg(retry_count)
 
 
@@ -172,7 +180,7 @@ def show_exception_msg(retry_count: int):
     :param retry_count:
     :return:
     """
-    print(f"{timestamp()} - Attempt {retry_count} successfully failed.")
+    logging.critical(f"Attempt {retry_count} successfully failed.")
     sound_notification(10000, 3000)
 
 
@@ -196,7 +204,8 @@ def try_internet(url: str, max_retries: int):
                 else:
                     time.sleep(HTTP_SLEEP)
                     http_requests(url, retry_count)
-            except requests.RequestException:
+            except requests.RequestException as request_err:
+                logging.error(f"Error: {request_err}")
                 show_exception_msg(retry_count)
     else:
         while retry_count < max_retries:
@@ -208,7 +217,8 @@ def try_internet(url: str, max_retries: int):
                 else:
                     time.sleep(HTTP_SLEEP)
                     http_requests(url, retry_count)
-            except requests.RequestException:
+            except requests.RequestException as request_err:
+                logging.error(f"Error: {request_err}")
                 show_exception_msg(retry_count)
 
 
@@ -238,7 +248,7 @@ def internet_check(url: str, max_retries: int):
         elif parsed_url.scheme == "https":
             try_internet(remove_schema(url), max_retries)
     else:
-        print(f"{url} is not valid !!!")
+        logging.critical(f"{url} is not valid !!!")
         time.sleep(5)
         exit(1)
 
