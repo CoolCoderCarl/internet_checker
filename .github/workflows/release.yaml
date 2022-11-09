@@ -105,12 +105,12 @@ jobs:
         include:
           - os: windows-latest
             TARGET: windows
-            CMD_BUILD: python -m PyInstaller --clean --workpath /tmp/build --specpath /tmp -F internet_checker.py
+            CMD_BUILD: python -m PyInstaller --clean --workpath /tmp/build --specpath /tmp -F internet_checker/internet_checker.py
             OUT_FILE_NAME: internet_checker.exe
             ASSET_MIME: application/vnd.microsoft.portable-executable
           - os: ubuntu-latest
             TARGET: ubuntu
-            CMD_BUILD: python -m PyInstaller --clean --workpath /tmp/build --specpath /tmp -F internet_checker.py
+            CMD_BUILD: python -m PyInstaller --clean --workpath /tmp/build --specpath /tmp -F internet_checker/internet_checker.py
             OUT_FILE_NAME: internet_checker
             ASSET_MIME: application/x-binary
 

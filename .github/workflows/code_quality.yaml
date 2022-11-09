@@ -35,3 +35,33 @@ jobs:
             <b>!!! FAILED !!!</b>
             <b>Failed job:</b> https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
             See changes: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+
+
+  pytesting:
+    runs-on: ubuntu-latest
+    name: Testing with pytest
+    container: python:3.9
+    needs: [ code_quality ]
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run script
+        run: pip install -r requirements.txt
+
+      - name: Testing
+        run: pytest -v ./tests/
+
+      - name: Notify if failure
+        if: ${{ failure() }}
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: html
+          message: |
+            <b>!!! FAILED !!!</b>
+            <b>Failed job:</b> https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            See changes: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
