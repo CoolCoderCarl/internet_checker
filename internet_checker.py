@@ -70,6 +70,13 @@ def get_args():
         help="Use ICMP protocol",
     )
 
+    check_parser.add_argument(
+        "--wifi",
+        dest="wifi",
+        help="WiFi Interface name",
+        type=str,
+    )
+
     return root_parser
 
 
@@ -111,6 +118,20 @@ def sound_notification(
             logging.critical("Try to install beep to your system")
 
 
+def restart_interface(ifname: str):
+    """
+    Restart interface
+    :param ifname:
+    :return:
+    """
+    # TODO wired interface
+    if namespace.wifi:
+        logging.info(f"Going to reconnect WiFi interface {ifname}...")
+        os.system("netsh wlan disconnect")
+        time.sleep(5)
+        os.system(f"netsh wlan connect {ifname}")
+
+
 def latency_is(url: str, retry_count: int) -> float:
     """
     Return latency value, if request was successfully failed the response will be empty and
@@ -149,6 +170,7 @@ def http_requests(url: str, retry_count: int):
     except requests.RequestException as request_err:
         logging.error(f"Error: {request_err}")
         show_exception_msg(retry_count)
+        restart_interface(namespace.wifi)
 
 
 def icmp_requests(url: str, retry_count: int):
@@ -172,6 +194,7 @@ def icmp_requests(url: str, retry_count: int):
     except ICMPLibError as icmp_err:
         logging.error(f"Error: {icmp_err}")
         show_exception_msg(retry_count)
+        restart_interface(namespace.wifi)
 
 
 def show_exception_msg(retry_count: int):
