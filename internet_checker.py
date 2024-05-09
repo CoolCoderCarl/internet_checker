@@ -170,6 +170,7 @@ def http_requests(url: str, retry_count: int):
     except requests.RequestException as request_err:
         logging.error(f"Error: {request_err}")
         show_exception_msg(retry_count)
+        restart_interface(namespace.wifi)
 
 
 def icmp_requests(url: str, retry_count: int):
@@ -193,6 +194,7 @@ def icmp_requests(url: str, retry_count: int):
     except ICMPLibError as icmp_err:
         logging.error(f"Error: {icmp_err}")
         show_exception_msg(retry_count)
+        restart_interface(namespace.wifi)
 
 
 def show_exception_msg(retry_count: int):
