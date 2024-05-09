@@ -9,7 +9,6 @@ on:
       - 'README.md'
       - '.gitignore'
       - 'changelog.json'
-      - 'test-pyt-ser.service'
 
 jobs:
 
