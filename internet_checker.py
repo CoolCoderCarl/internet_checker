@@ -78,10 +78,10 @@ def get_args():
     )
 
     check_parser.add_argument(
-        "--no-sound",
-        dest="nosound",
+        "--sound",
+        dest="sound",
         action=argparse.BooleanOptionalAction,
-        help="Turn off the sound",
+        help="Turn on\off the sound",
     )
 
     return root_parser
@@ -132,9 +132,7 @@ def sound_notification(
     :param duration:
     :return:
     """
-    if namespace.nosound:
-        pass
-    else:
+    if namespace.sound:
         if current_system:
             winsound.Beep(frequency, duration)
         else:
@@ -143,15 +141,18 @@ def sound_notification(
             except OSError as os_err:
                 logging.error(f"Error: {os_err}")
                 logging.critical("Try to install beep to your system")
+    else:
+        pass
 
 
 def restart_interface(ifname: str):
     """
-    Restart interface
+    Restart interface for Windows by default
     :param ifname:
     :return:
     """
     # TODO wired interface
+    # TODO for Linux
     if current_system:
         if namespace.wifi:
             logging.info(f"Going to reconnect WiFi interface {ifname}...")
