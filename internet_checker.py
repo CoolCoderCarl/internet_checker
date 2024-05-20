@@ -77,6 +77,13 @@ def get_args():
         type=str,
     )
 
+    check_parser.add_argument(
+        "--no-sound",
+        dest="nosound",
+        action=argparse.BooleanOptionalAction,
+        help="Turn off the sound",
+    )
+
     return root_parser
 
 
@@ -98,24 +105,44 @@ logging.basicConfig(
 )
 
 
+def is_win() -> bool:
+    """
+    Check is system Win or not
+    :return:
+    """
+    if "win" in sys.platform:
+        logging.info("Current system is Windows...")
+        return True
+    else:
+        logging.info("Current system is Linux or other...")
+        return False
+
+
+# Save result
+current_system = is_win()
+
+
 def sound_notification(
     frequency=FREQUENCY_NOTIFICATION, duration=DURATION_NOTIFICATION
 ):
     """
-    Play system sound with beep
+    Play system sound with beep for Windows by default
     If Linux maybe require to install beep package
     :param frequency:
     :param duration:
     :return:
     """
-    if "win" in sys.platform:
-        winsound.Beep(frequency, duration)
+    if namespace.nosound:
+        pass
     else:
-        try:
-            os.system("beep -f %s -l %s" % (frequency, duration))
-        except OSError as os_err:
-            logging.error(f"Error: {os_err}")
-            logging.critical("Try to install beep to your system")
+        if current_system:
+            winsound.Beep(frequency, duration)
+        else:
+            try:
+                os.system("beep -f %s -l %s" % (frequency, duration))
+            except OSError as os_err:
+                logging.error(f"Error: {os_err}")
+                logging.critical("Try to install beep to your system")
 
 
 def restart_interface(ifname: str):
@@ -125,11 +152,16 @@ def restart_interface(ifname: str):
     :return:
     """
     # TODO wired interface
-    if namespace.wifi:
-        logging.info(f"Going to reconnect WiFi interface {ifname}...")
-        os.system("netsh wlan disconnect")
-        time.sleep(5)
-        os.system(f"netsh wlan connect {ifname}")
+    if current_system:
+        if namespace.wifi:
+            logging.info(f"Going to reconnect WiFi interface {ifname}...")
+            os.system("netsh wlan disconnect")
+            time.sleep(5)
+            os.system(f"netsh wlan connect {ifname}")
+    else:
+        logging.warning(
+            "There is nothing I can do... But it is not so bad just look at it like an opportunity... Maybe it is you who will code and test this..... Maybe you are The Developer..."
+        )
 
 
 def latency_is(url: str, retry_count: int) -> float:
