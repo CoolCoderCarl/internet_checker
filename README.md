@@ -35,6 +35,9 @@ If you use an `--wifi` argument you need to pass the name of your Wi-Fi interfac
 If the connection will be broken this arg switch on reconnection function, sometime it can be helpful.
 `internet_checker.exe check --url http://www.google.com --wifi YOUR_WIFI_INTERFACE_NAME`
 
+If you want to turn off sound notification you can use next option `--no-sound`.
+`internet_checker.exe check --url http://www.google.com --no-sound`
+
 You also can wrap up invocation with `.sh` or `.bat`. Think about it.
 
 **Warning !**  
