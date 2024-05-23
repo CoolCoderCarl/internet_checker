@@ -119,7 +119,7 @@ def is_win() -> bool:
 
 
 # Save result
-current_system = is_win()
+is_win = is_win()
 
 
 def sound_notification(
@@ -133,7 +133,7 @@ def sound_notification(
     :return:
     """
     if namespace.sound:
-        if current_system:
+        if is_win:
             winsound.Beep(frequency, duration)
         else:
             try:
@@ -151,17 +151,17 @@ def restart_interface(ifname: str):
     :param ifname:
     :return:
     """
-    # TODO wired interface
-    # TODO for Linux
-    if current_system:
+    if is_win:
         if namespace.wifi:
             logging.info(f"Going to reconnect WiFi interface {ifname}...")
             os.system("netsh wlan disconnect")
             time.sleep(5)
             os.system(f"netsh wlan connect {ifname}")
+        # TODO wired interface
     else:
+        # TODO for Linux
         logging.warning(
-            "There is nothing I can do... But it is not so bad just look at it like an opportunity... Maybe it is you who will code and test this..... Maybe you are The Developer..."
+            "There is nothing I can do... But it is not so bad, just look at this like an opportunity... Maybe it is you who will code and test this..."
         )
 
 
@@ -169,12 +169,13 @@ def latency_is(url: str, retry_count: int) -> float:
     """
     Return latency value, if request was successfully failed the response will be empty and
     measurement become unavailable then return zero latency
+    Convert to string get 7 digits and convert back to float to make this result simple
     :param url:
     :param retry_count:
     :return: Return latency in milliseconds, if attempt successfully failed - 0.0
     """
     try:
-        return measure_latency(url)[0]
+        return float(str(measure_latency(url)[0])[:7])
     except IndexError as index_err:
         logging.error(
             f"Attempt {retry_count}. There is nothing in here at all. Error: {index_err}"
@@ -193,11 +194,11 @@ def http_requests(url: str, retry_count: int):
         response = requests.get("http://" + url, timeout=TIMEOUT)
         if response.status_code == 200:
             logging.info(
-                f"Attempt {retry_count} | Status code: {response.status_code} - Latency: {latency_is(url, retry_count)} ms."
+                f"Attempt {retry_count} | Status code: {response.status_code} - Latency: [{latency_is(url, retry_count)} ms] - Host: {url}"
             )
         else:
             logging.warning(
-                f"Attempt {retry_count} successfully failed. | Status code: {response.status_code}"
+                f"Attempt {retry_count} successfully failed. | Status code: {response.status_code} - Host: {url}"
             )
             sound_notification()
     except requests.RequestException as request_err:
@@ -217,11 +218,11 @@ def icmp_requests(url: str, retry_count: int):
         host = ping(url, count=1, timeout=TIMEOUT)
         if host.is_alive:
             logging.info(
-                f"Attempt {retry_count} | Is host available: {host.is_alive} - Average RTT: {host.avg_rtt}"
+                f"Attempt {retry_count} | Is host available: {host.is_alive} - Average RTT: [{host.avg_rtt}] - Host: {host}"
             )
         else:
             logging.warning(
-                f"Attempt {retry_count} successfully failed. | Is host available: {host.is_alive}"
+                f"Attempt {retry_count} successfully failed. | Is host available: {host.is_alive} - Host: {host}"
             )
             sound_notification()
     except ICMPLibError as icmp_err:
